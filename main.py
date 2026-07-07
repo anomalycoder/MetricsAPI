@@ -7,7 +7,7 @@ app = FastAPI()
 
 # 1. Define your assigned variables
 ALLOWED_ORIGIN = "https://dash-84w9rm.example.com"
-MY_EMAIL = "your-email@example.com"  # <--- Change this to your exact logged-in email
+MY_EMAIL = "24f2002227@ds.study.iitm.ac.in"  # <--- Change this to your exact logged-in email
 
 @app.middleware("http")
 async def cors_and_headers_middleware(request: request, call_next):
