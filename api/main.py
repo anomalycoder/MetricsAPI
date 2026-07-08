@@ -1,48 +1,61 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import uuid
 import time
+import uuid
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-EMAIL = "24f2002227@ds.study.iitm.ac.in"
-ALLOWED_ORIGIN = [
-    "https://dash-84w9rm.example.com",
-    "https://exam.sanand.workers.dev/tds-2026-05-ga2",
-    "https://exam.sanand.workers.dev"
-]
+# 1. STRICT CORS POLICY: Only allow your assigned origin. No wildcards.
+ALLOWED_ORIGIN = "https://dash-84w9rm.example.com"
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[ALLOWED_ORIGIN],
     allow_credentials=True,
-    allow_methods=["GET", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# 2. CUSTOM MIDDLEWARE: Inject X-Request-ID and X-Process-Time
 @app.middleware("http")
-async def add_headers(request, call_next):
-    start = time.perf_counter()
+async def add_custom_headers(request: Request, call_next):
+    start_time = time.time()
+    request_id = str(uuid.uuid4())
+    
+    # Process the request
     response = await call_next(request)
-
-    response.headers["X-Request-ID"] = str(uuid.uuid4())
-    response.headers["X-Process-Time"] = f"{time.perf_counter() - start:.6f}"
-
+    
+    # Calculate duration
+    process_time = time.time() - start_time
+    
+    # Add required headers
+    response.headers["X-Request-ID"] = request_id
+    # Ensure it's a non-negative decimal as a string
+    response.headers["X-Process-Time"] = f"{max(0.0, process_time):.6f}"
+    
     return response
 
-@app.get("/")
-def root():
-    return {"status": "ok"}
-
+# 3. STATS ENDPOINT
 @app.get("/stats")
-def stats(values: str):
-    nums = [int(v.strip()) for v in values.split(",") if v.strip()]
+@app.get("/api/stats")  # Catch Vercel pathing just in case
+def get_stats(values: str):
+    # Parse comma-separated string into a list of integers
+    int_values = [int(v.strip()) for v in values.split(",") if v.strip()]
+    
+    if not int_values:
+        return {"error": "No values provided"}
+        
+    count = len(int_values)
+    total_sum = sum(int_values)
+    min_val = min(int_values)
+    max_val = max(int_values)
+    mean_val = total_sum / count
 
     return {
-        "email": EMAIL,
-        "count": len(nums),
-        "sum": sum(nums),
-        "min": min(nums),
-        "max": max(nums),
-        "mean": sum(nums) / len(nums),
+        "email": "24f2002227@ds.study.iitm.ac.in",  # <-- CHANGE THIS TO YOUR EXAM EMAIL
+        "count": count,
+        "sum": total_sum,
+        "min": min_val,
+        "max": max_val,
+        "mean": mean_val
     }
