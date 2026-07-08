@@ -19,7 +19,6 @@ app.add_middleware(
 @app.middleware("http")
 async def add_headers(request, call_next):
     start = time.perf_counter()
-
     response = await call_next(request)
 
     response.headers["X-Request-ID"] = str(uuid.uuid4())
@@ -27,15 +26,13 @@ async def add_headers(request, call_next):
 
     return response
 
-
 @app.get("/")
-def home():
+def root():
     return {"status": "ok"}
-
 
 @app.get("/stats")
 def stats(values: str):
-    nums = [int(x.strip()) for x in values.split(",") if x.strip()]
+    nums = [int(v.strip()) for v in values.split(",") if v.strip()]
 
     return {
         "email": EMAIL,
