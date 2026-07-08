@@ -5,15 +5,10 @@
       "use": "@vercel/python"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "api/main.py",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "*"
-      }
+      "source": "/(.*)",
+      "destination": "/api/main.py"
     }
   ]
 }
