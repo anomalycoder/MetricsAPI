@@ -6,7 +6,11 @@ import time
 app = FastAPI()
 
 EMAIL = "24f2002227@ds.study.iitm.ac.in"
-ALLOWED_ORIGIN = "https://dash-84w9rm.example.com"
+ALLOWED_ORIGIN = [
+    "https://dash-84w9rm.example.com",
+    "https://exam.sanand.workers.dev/tds-2026-05-ga2",
+    "https://exam.sanand.workers.dev"
+]
 
 app.add_middleware(
     CORSMiddleware,
